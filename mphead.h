@@ -13,22 +13,22 @@
 
 // _STR expands the macro once first before STR turns it into a string
 #define _STR(nonstr)							#nonstr
-#define STR(nonstr)								_STR(nonstr)
+#define STR(nonstr)							_STR(nonstr)
 
 // scanf format for strshrt_t
-#define SHORT_SCANF								" %"STR(STRING_SHORT)"[^\n]"
+#define SHORT_SCANF							" %"STR(STRING_SHORT)"[^\n]"
 #define SHORT_LPRINTF							"%-"STR(STRING_SHORT)"s"
 #define SHORT_RPRINTF							"%"STR(STRING_SHORT)"s"
 
 // scanf format for strlng_t
-#define LONG_SCANF								" %"STR(STRING_LONG)"[^\n]"
+#define LONG_SCANF							" %"STR(STRING_LONG)"[^\n]"
 #define LONG_LPRINTF							"%-"STR(STRING_SHORT)"s"
 #define LONG_RPRINTF							"%"STR(STRING_SHORT)"s"
 
 // Color console text by RGB formatting
 #define FOREGROUND_RGB(text, r, g, b)			"\x1b[38;2;"STR(r)";"STR(g)";"STR(b)"m"text"\x1b[0m"
 // Color console text by available ANSI color presets
-#define FOREGROUND_COLORSET(text, color_code)	"\x1b[38;5;"STR(color_code)"m"text"\x1b[0m"
+#define FOREGROUND_COLORSET(text, color_code)			"\x1b[38;5;"STR(color_code)"m"text"\x1b[0m"
 
 //-- Limitations --
 
@@ -66,24 +66,3 @@ typedef struct
 	langentry_p results[LANGENTRY_MAX];
 	int count;
 } langentry_p_l, langentry_p_l_p;
-
-//typedef struct
-//{
-//	strshrt_t name, equivalents[LANGPAIR_MAX];
-//	int count;
-//} language_t, *language_p;
-//typedef struct
-//{
-//	language_t languages[LANGUAGE_MAX];
-//	int	count;
-//} language_l, *language_l_p;
-//typedef struct
-//{
-//	strshrt_t word;
-//	language_l pairs;
-//} translation_t, *translation_p;
-//typedef struct
-//{
-//	translation_t entries[TRANSLATION_MAX];
-//	int	count;
-//} translation_l, *translation_l_p;

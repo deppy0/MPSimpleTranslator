@@ -1,37 +1,4 @@
 #include "mpfunct.c"
-/*
-void translate()
-{
-
-}
-
-void manage()
-{
-	printf("\n1) Add an entry");
-	printf("\n2) Add translation to an existing entry");
-	printf("\n3) Delete an entry");
-	printf("\n4) Delete a translation from an existing entry");
-	printf("\n5) Display current entries");
-	printf("\n6) Search for a word");
-	printf("\n7) Search for a translation");
-	printf("\n8) Export entries to file");
-	printf("\n9) Import entries from file");
-}
-
-int main(void)
-{
-	// Menu
-	int state = 1;
-	while (state > 0)
-	{
-		printf("Simple Translator\n"); // design later
-		printf("\n1) Translate");
-		printf("\n2) Manage Data");
-		printf("\n3) Exit");
-	}
-	return 0;
-}
-*/
 
 void add_entry(langentry_l_p list, int *new_entries)
 {
@@ -120,7 +87,8 @@ int main(void)
 	int i, s, e = 0;
 	langentry_l root;
 	langpair_p ptr = NULL;
-
+	
+	// Make sure 'e' is initialized before use
 	add_entry(&root, &e);
 
 	if (root.entries > 0)
