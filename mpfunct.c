@@ -38,6 +38,40 @@ void nocapital_o(char *str)
 		str[i] = tolower(str[i]);
 }
 
+void strshrt_sort(strshrt_t arr[], int n, int z2a)
+{
+	int i, j, c, m;
+	strshrt_t t;
+	// Compare both ends
+	m = 0;
+	if (!z2a)
+		c = strcmp(arr[0], arr[n - 1]) > 0;
+	else
+		c = strcmp(arr[0], arr[n - 1]) < 0;
+	if (c)
+		m = n - 1;
+	strcpy(t, arr[0]);
+	strcpy(arr[0], arr[m]);
+	strcpy(arr[m], t);
+	// Compare each element to minimum
+	for (i = 0; i < n; i++)
+	{
+		m = i;
+		for (j = i + 1; j < n; j++)
+		{
+			if (!z2a)
+				c = strcmp(arr[m], arr[j]) > 0;
+			else
+				c = strcmp(arr[m], arr[j]) < 0;
+			if (c)
+				m = j;
+		}
+		strcpy(t, arr[i]);
+		strcpy(arr[i], arr[m]);
+		strcpy(arr[m], t);
+	}
+}
+
 void display_pair(langpair_p pair)
 {
 	int i;
@@ -77,37 +111,191 @@ void display_entry_p(langentry_p_l_p list, int index)
 	}
 }
 
-void sort_pairs(langentry_p list, int isZtoA)
+void display_all_entries(langentry_l_p list)
 {
-	int i, j, c;
+	int i;
+	for (i = 0; i < list->entries; i++)
+		display_entry(list, i);
+}
+
+langentry_p_l get_entry_p_l(langentry_l_p list)
+{
+	langentry_p_l p = { 0 };
+	for (p.count = 0; p.count < list->entries; p.count++)
+		p.ptr_list[p.count] = &list->entry_list[p.count];
+	return p;
+}
+
+void sort_entries_p(langentry_p_l_p list, int isZtoA)
+{
+	// Declarations for sorting
+	int i, j, m, cmp;
+	// Declarations for segregating
+	int k, swp;
+	langentry_p ptr;
+	if (list->count > 0)
+	{
+		// Segregate list by putting English entries first
+		for (k = 0, swp = 0; k < list->count; k++)
+		{
+			if (list->ptr_list[k]->english_index != -1)
+			{
+				ptr = list->ptr_list[k];
+				list->ptr_list[k] = list->ptr_list[swp];
+				list->ptr_list[swp++] = ptr;
+			}
+		}
+		// Sort English entries
+		if (swp > 0)
+		{
+			m = 0;
+			if (!isZtoA)
+				cmp = strcmp(
+					list->ptr_list[0]->pair_list[list->ptr_list[0]->english_index].translation_list[0],
+					list->ptr_list[swp - 1]->pair_list[list->ptr_list[swp - 1]->english_index].translation_list[0]
+				) > 0;
+			else
+				cmp = strcmp(
+					list->ptr_list[0]->pair_list[list->ptr_list[0]->english_index].translation_list[0],
+					list->ptr_list[swp - 1]->pair_list[list->ptr_list[swp - 1]->english_index].translation_list[0]
+				) < 0;
+			if (cmp)
+				m = swp - 1;
+			ptr = list->ptr_list[0];
+			list->ptr_list[0] = list->ptr_list[m];
+			list->ptr_list[m] = ptr;
+			for (i = 0; i < swp; i++)
+			{
+				m = i;
+				for (j = i + 1; j < swp; j++)
+				{
+					if (!isZtoA)
+						cmp = strcmp(
+							list->ptr_list[m]->pair_list[list->ptr_list[m]->english_index].translation_list[0],
+							list->ptr_list[j]->pair_list[list->ptr_list[j]->english_index].translation_list[0]
+						) > 0;
+					else
+						cmp = strcmp(
+							list->ptr_list[m]->pair_list[list->ptr_list[m]->english_index].translation_list[0],
+							list->ptr_list[j]->pair_list[list->ptr_list[j]->english_index].translation_list[0]
+						) < 0;
+					if (cmp)
+						m = j;
+				}
+				ptr = list->ptr_list[i];
+				list->ptr_list[i] = list->ptr_list[m];
+				list->ptr_list[m] = ptr;
+			}
+		}
+		// Sort non-English entries
+		if (swp < list->count)
+		{
+			m = swp;
+			if (!isZtoA)
+				cmp = strcmp(
+					list->ptr_list[swp]->pair_list[0].translation_list[0],
+					list->ptr_list[list->count - 1]->pair_list[0].translation_list[0]
+				) > 0;
+			else
+				cmp = strcmp(
+					list->ptr_list[swp]->pair_list[0].translation_list[0],
+					list->ptr_list[list->count - 1]->pair_list[0].translation_list[0]
+				) < 0;
+			if (cmp)
+				m = list->count - 1;
+			ptr = list->ptr_list[swp];
+			list->ptr_list[swp] = list->ptr_list[m];
+			list->ptr_list[m] = ptr;
+			for (i = swp; i < list->count; i++)
+			{
+				m = i;
+				for (j = i + 1; j < swp; j++)
+				{
+					if (!isZtoA)
+						cmp = strcmp(
+							list->ptr_list[m]->pair_list[0].translation_list[0],
+							list->ptr_list[j]->pair_list[0].translation_list[0]
+						) > 0;
+					else
+						cmp = strcmp(
+							list->ptr_list[m]->pair_list[0].translation_list[0],
+							list->ptr_list[j]->pair_list[0].translation_list[0]
+						) < 0;
+					if (cmp)
+						m = j;
+				}
+				ptr = list->ptr_list[i];
+				list->ptr_list[i] = list->ptr_list[m];
+				list->ptr_list[m] = ptr;
+			}
+		}
+	}
+}
+
+void reorder_dataset(langentry_l_p dataset, langentry_p_l_p blueprint_from_dataset)
+{
+	langentry_l reorder = { 0 };
+	if (dataset->entries > 0 && dataset->entries == blueprint_from_dataset->count)
+	{
+		for (reorder.entries = 0; reorder.entries < blueprint_from_dataset->count; reorder.entries++)
+			reorder.entry_list[reorder.entries] = *blueprint_from_dataset->ptr_list[reorder.entries];
+		*dataset = reorder;
+	}
+}
+
+void sort_pairs(langentry_p entry, int isZtoA)
+{
+	int i, j, k, c, e;
 	langpair_t t;
 	langpair_p m;
-	m = &list->pair_list[0];
+	// Swap first and last pair
+	m = &entry->pair_list[0];
 	if (!isZtoA)
-		c = strcmp(m->language_name, list->pair_list[list->pairs - 1].language_name) > 0;
+		c = strcmp(m->language_name, entry->pair_list[entry->pairs - 1].language_name) > 0;
 	else
-		c = strcmp(m->language_name, list->pair_list[list->pairs - 1].language_name) < 0;
+		c = strcmp(m->language_name, entry->pair_list[entry->pairs - 1].language_name) < 0;
 	if (c)
-		m = &list->pair_list[list->pairs - 1];
-	t = list->pair_list[0];
-	list->pair_list[0] = *m;
+		m = &entry->pair_list[entry->pairs - 1];
+	t = entry->pair_list[0];
+	entry->pair_list[0] = *m;
 	*m = t;
-	for (i = 0; i < list->pairs; i++)
+	// Iterate through the array to find the minimum comparative to the first pair
+	for (i = 0; i < entry->pairs; i++)
 	{
-		m = &list->pair_list[i];
-		for (j = i + 1; j < list->pairs; j++)
+		m = &entry->pair_list[i];
+		for (j = i + 1; j < entry->pairs; j++)
 		{
 			if (!isZtoA)
-				c = strcmp(m->language_name, list->pair_list[j].language_name) > 0;
+				c = strcmp(m->language_name, entry->pair_list[j].language_name) > 0;
 			else
-				c = strcmp(m->language_name, list->pair_list[j].language_name) < 0;
+				c = strcmp(m->language_name, entry->pair_list[j].language_name) < 0;
 			if (c)
-				m = &list->pair_list[j];
+				m = &entry->pair_list[j];
+			else
+			{
+				// In extreme cases where there are same language codes in one entry, 
+				// proceed to compare each of their corresponding translations instead.
+				if (strcmp(m->language_name, entry->pair_list[j].language_name) == 0)
+				{
+					for (k = 0; !c && k < min(m->translations, entry->pair_list[j].translations); k++)
+						if (!isZtoA)
+							c = strcmp(m->translation_list[k], entry->pair_list[j].translation_list[k]) > 0;
+						else
+							c = strcmp(m->translation_list[k], entry->pair_list[j].translation_list[k]) < 0;
+					if (c)
+						m = &entry->pair_list[j];
+				}
+			}
 		}
-		t = list->pair_list[i];
-		list->pair_list[i] = *m;
+		t = entry->pair_list[i];
+		entry->pair_list[i] = *m;
 		*m = t;
 	}
+	// The index of the English pair may have been moved due to the sorting process
+	if (entry->english_index != -1)
+		for (k = 0, e = 0; !e && k < entry->pairs; k++)
+			if (strcmp(entry->pair_list[k].language_name, "eng") == 0)
+				e = 1, entry->english_index = k;
 }
 
 static int _check_entry(langentry_p list, strshrt_t language, strshrt_t translation, int search_translation)
@@ -170,7 +358,7 @@ void search_all(langentry_l_p list, strshrt_t language, strshrt_t word, langentr
 int search_prompt(langentry_l_p list, langentry_p_l_p search_results, langpair_p immediate_pair)
 {
 	int stop, result;
-	strshrt_t language, translation;
+	strshrt_t language = { 0 }, translation = { 0 };
 	// Prompt language code
 	printf("Enter language code: ");
 	scanf(SHORT_SCANF, language);
@@ -200,7 +388,7 @@ int search_prompt(langentry_l_p list, langentry_p_l_p search_results, langpair_p
 void configure_entry(langentry_l_p list, int *current_entries, langpair_p immediate_pair)
 {
 	int stop_entry, stop_translation, english_found;
-	strshrt_t temp;
+	strshrt_t temp = { 0 };
 	langentry_p entry;
 	langpair_p pair;
 	// This function is useless when data is NULL.
@@ -217,13 +405,17 @@ void configure_entry(langentry_l_p list, int *current_entries, langpair_p immedi
 		// Prompt for languages within the entry
 		// Add the immediate pair beforehand
 		entry->pair_list[0] = *immediate_pair;
+		if (strcmp(entry->pair_list[0].language_name, "eng") == 0)
+			entry->english_index = 0, english_found = 1;
+		else
+			entry->english_index = -1;
 		for (stop_entry = 0, entry->pairs = 1; !stop_entry && entry->pairs < LANGPAIR_MAX; entry->pairs++)
 		{
 			pair = &entry->pair_list[entry->pairs];
 			if (entry->pairs == 0)
-				printf(FOREGROUND_COLORSET("\nYou can add up to 10 languages to your entry.", 51));\
+				printf(FOREGROUND_COLORSET("\nYou can add up to 10 languages to your entry.", 51));
 			printf("\nPlease type in a 3-character language code for language " FOREGROUND_COLORSET("#%d", 255)
-				", or type " FOREGROUND_COLORSET("'!!'", 196) " to terminate input.", entry->pairs + 1);
+				", or type " FOREGROUND_COLORSET("!!", 196) " to terminate input.", entry->pairs + 1);
 			printf(FOREGROUND_COLORSET("\nIt is best that you follow the", 160) FOREGROUND_COLORSET(" "
 				"ISO 639-2 standards ", 255) FOREGROUND_COLORSET("to avoid unexpected results in your dataset.", 160));
 			printf(FOREGROUND_COLORSET("\nYou may refer to this link:", 226));
@@ -248,7 +440,7 @@ void configure_entry(langentry_l_p list, int *current_entries, langpair_p immedi
 						printf(
 							"\nNow, enter a translation from that language to add to your entry."
 							"\nAfter this word, you can type 4 more words connected to your first word."
-							"\nType in '!!' to terminate input if you only plan to put less than 5 words.\n\n"
+							"\nType in !! to terminate input if you only plan to put less than 5 words.\n\n"
 						);
 					printf("Translation #%d: ", pair->translations + 1);
 					scanf(SHORT_SCANF, temp);
@@ -260,6 +452,7 @@ void configure_entry(langentry_l_p list, int *current_entries, langpair_p immedi
 						if (--pair->translations == -1)
 							stop_translation = 0;
 				}
+				strshrt_sort(pair->translation_list, pair->translations, 0);
 			}
 			else entry->pairs--;
 		}
@@ -273,9 +466,13 @@ void add_entry(langentry_l_p list, int *current_entries)
 {
 	int i, search, stop_translation;
 	strshrt_t user;
-	langentry_p_l search_results;
+	langentry_p_l search_results, sorted;
 	langpair_t immediate_pair;
 	
+	printf(FOREGROUND_COLORSET("\nThe first translation pair of your entry", 226) FOREGROUND_COLORSET(" #%d ", 255) FOREGROUND_COLORSET(
+		"must be searched prior to addition.", 226), *current_entries + 1);
+	printf(FOREGROUND_COLORSET("\nPlease enter a language code with a corresponding translation below.", 51));
+	printf(FOREGROUND_COLORSET("\nOtherwise, type", 51) FOREGROUND_COLORSET(" !! ", 196) FOREGROUND_COLORSET("to cancel the process.\n\n", 51));
 	search = search_prompt(list, &search_results, &immediate_pair);
 	if (search != -1)
 	{
@@ -296,7 +493,7 @@ void add_entry(langentry_l_p list, int *current_entries)
 				nosymbols_o(user);
 				if (user[0] == 'y')
 				{
-					printf("\nTo terminate input, type '!!'.");
+					printf("\nTo terminate input, type !!.");
 					for (stop_translation = 0, immediate_pair.translations = 1;
 						!stop_translation && immediate_pair.translations < LANGTRANS_MAX;
 						immediate_pair.translations++)
@@ -309,6 +506,7 @@ void add_entry(langentry_l_p list, int *current_entries)
 						else
 							immediate_pair.translations--;
 					}
+					strshrt_sort(immediate_pair.translation_list, immediate_pair.translations, 0);
 				}
 				configure_entry(list, current_entries, &immediate_pair);
 			}
@@ -323,7 +521,7 @@ void add_entry(langentry_l_p list, int *current_entries)
 			nosymbols_o(user);
 			if (user[0] == 'y')
 			{
-				printf("\nTo terminate input, type '!!'.");
+				printf("\nTo terminate input, type !!.");
 				for (stop_translation = 0, immediate_pair.translations = 1;
 					!stop_translation && immediate_pair.translations < LANGTRANS_MAX;
 					immediate_pair.translations++)
@@ -336,8 +534,13 @@ void add_entry(langentry_l_p list, int *current_entries)
 					else
 						immediate_pair.translations--;
 				}
+				strshrt_sort(immediate_pair.translation_list, immediate_pair.translations, 0);
 			}
 			configure_entry(list, current_entries, &immediate_pair);
 		}
+		sorted = get_entry_p_l(list);
+		sort_entries_p(&sorted, 0);
+		reorder_dataset(list, &sorted);
 	}
 }
+
