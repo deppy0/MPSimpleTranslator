@@ -11,6 +11,11 @@ int main(void)
 	int current_entries = 0;
 	
 	// Test mode
+	int i;
+	for (i = 0; i < 10; i++)
+		add_entry(&dataset, &current_entries);
+
+	display_all_entries(&dataset);
 	add_entry(&dataset, &current_entries);
-	add_entry(&dataset, &current_entries);
+	display_all_entries(&dataset);
 }
