@@ -86,12 +86,17 @@ void nocapital_o(char *);
 void display_pair(langpair_p);
 void display_entry(langentry_l_p, int);
 void display_entry_p(langentry_p_l_p, int);
+void display_all_entries(langentry_l_p);
 int search_prompt(langentry_l_p, langentry_p_l_p, langpair_p);
 
 // Program methods
 
+void strshrt_sort(strshrt_t arr[], int n, int z2a);
+langentry_p_l get_entry_p_l(langentry_l_p list);
+void reorder_dataset(langentry_l_p dataset, langentry_p_l_p blueprint_from_dataset);
+void sort_entries_p(langentry_p_l_p list, int isZtoA);
 void sort_pairs(langentry_p, int);
 int search_once(langentry_l_p, strshrt_t, strshrt_t, langpair_p *, int, int);
-void search_all(langentry_l_p, strshrt_t, strshrt_t, langpair_p_l_p, int, int);
+void search_all(langentry_l_p, strshrt_t, strshrt_t, langentry_p_l_p, int, int);
 void configure_entry(langentry_l_p, int *, langpair_p);
 void add_entry(langentry_l_p, int *);
